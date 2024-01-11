@@ -3,32 +3,94 @@ import json
 
 
 def main():  # main file
-    (
-        movies,
-        count,
-    ) = return_list()  # so far returns the movies and the count of the total results
-    for movie in movies:  # prints each movie title and the the result number
-        print(movie)
-    print(f"from {count} results!")
+    movies, count = return_movies()
+    print_movies(movies, count)
 
 
-def return_list():  # return list function (might make it a list of dictionaries later if i can)
+def return_movies():  # return list function (might make it a list of dictionaries later if i can)
     imdb = IMDB()
-    choose = input(
-        "What genre of movie are you looking for? "
-    )  # asks the user which genre they are looking for
-    res = imdb.popular_movies(
-        genre=choose, start_id=1, sort_by=None
-    )  # gives a response of that genre
-    data = json.loads(res)  # translate the json file into a dict for python to read
-    count = int(data["result_count"])  # get the results count
-    temp_list = []  # make a list
-    for i in range(count):  # appending the names of the movies to the list
-        temp_list.append(data["results"][i]["name"])
-    # print(res)
-    movie_list = set(temp_list)  # removing duplicates
-    return movie_list, count  # returning this data to the main program
+    valid_genres = [
+        "action",
+        "adventure",
+        "animation",
+        "biography",
+        "comedy",
+        "crime",
+        "documentary",
+        "drama",
+        "family",
+        "fantasy",
+        "film-noir",
+        "history",
+        "horror",
+        "music",
+        "musical",
+        "mystery",
+        "romance",
+        "sci-fi",
+        "short",
+        "sport",
+        "thriller",
+        "war",
+        "western",
+    ]
 
+    choose = choose_genre(valid_genres)
+    if choose is None:
+        return [], 0
+    else:
+        try:
+            res = imdb.popular_movies(
+                genre=choose, start_id=1, sort_by=None
+            )  # gives a response of that genre
+        except Exception as e:
+            print(f"Error: {e}")
+
+        data = json.loads(res)  # translate the json file into a dict for python to read
+        count = int(data["result_count"])  # get the results count
+        temp_list = []  # make a list
+        for i in range(count):  # appending the names of the movies to the list
+            movie_data = {
+                "name": data["results"][i]["name"],
+                "year": data["results"][i]["year"],
+            }
+            temp_list.append(movie_data)  # add to list
+        unique_movies = []  # make a list of movies that are unique and not dublicates
+        seen_names = (
+            set()
+        )  # this is a list that stores movies and checks if their are duplicates with the set method
+
+        for (
+            movie
+        ) in (
+            temp_list
+        ):  # foor loop where if the movie name key pair is not in the set list(seen_names) it appends the movie dict to the unique movies list and adds the movie name to the seen names list
+            if movie["name"] not in seen_names:
+                unique_movies.append(movie)
+                seen_names.add(movie["name"])
+
+        return unique_movies, count
+        # return movie_list, count  # returning this data to the main program
+
+
+def choose_genre(valid_genres):
+    choose = (
+        input("What genre of movie are you looking for? ").lower().strip()
+    )  # asks the user which genre they are looking for
+    if (
+        choose in valid_genres
+    ):  # if choice is in genres then return it.  Otherwise return nothing and tell the user.
+        return choose
+    else:
+        print("Genre not found.  Please try again.")
+        return None
+
+
+def print_movies(movies, count):  # prints the movie title and year with key value pairs
+    for movie in movies:
+        print(f"Movie Title: {movie['name']}, Year: {movie['year']}")
+    print(movies)  # prints the list of dicts
+    print(f"from {count} results!")  # prints total results searched
 
 
 if __name__ == "__main__":
