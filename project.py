@@ -1,6 +1,6 @@
 from PyMovieDb import IMDB
 import json
-
+import plotly.express as px
 
 def main():  # main file
     movies, count = return_movies()
