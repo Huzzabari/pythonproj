@@ -2,9 +2,11 @@ from PyMovieDb import IMDB
 import json
 import plotly.express as px
 
+
 def main():  # main file
-    movies, count = return_movies()
-    print_movies(movies, count)
+    movies, count = return_movies()  # get data
+    print_movies(movies, count)  # print this data as a list in the console
+    plot_movies_by_year(movies)  # graph this information
 
 
 def return_movies():  # return list function (might make it a list of dictionaries later if i can)
@@ -89,8 +91,24 @@ def choose_genre(valid_genres):
 def print_movies(movies, count):  # prints the movie title and year with key value pairs
     for movie in movies:
         print(f"Movie Title: {movie['name']}, Year: {movie['year']}")
-    print(movies)  # prints the list of dicts
     print(f"from {count} results!")  # prints total results searched
+
+
+def plot_movies_by_year(movies):
+    # Create a Plotly scatter plot
+    fig = px.scatter(  # figure makes a scatter plot of the movies list of dicts.
+        movies,
+        x="year",
+        title="Top Movies by Year",
+        labels={
+            "year": "Year",
+            "name": "Movie Title",
+        },  # label of year and movie title.  I'm organizing this information by year.
+        hover_data=["name"],  # display movie name when hovering over dot
+    )
+
+    # Show the chart
+    fig.show()
 
 
 if __name__ == "__main__":
