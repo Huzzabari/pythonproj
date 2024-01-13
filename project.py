@@ -4,9 +4,10 @@ import plotly.express as px
 
 
 def main():  # main file
-    movies, count = return_movies()  # get data
+    movies, count, choose = return_movies()  # get data
     print_movies(movies, count)  # print this data as a list in the console
-    plot_movies_by_year(movies)  # graph this information
+    write_movies(movies)  # writes out this list for users
+    plot_movies_by_year(movies,choose)  # graph this information
 
 
 def return_movies():  # return list function (might make it a list of dictionaries later if i can)
@@ -71,8 +72,8 @@ def return_movies():  # return list function (might make it a list of dictionari
                 unique_movies.append(movie)
                 seen_names.add(movie["name"])
 
-        return unique_movies, count
-        # return movie_list, count  # returning this data to the main program
+        return unique_movies, count, choose.capitalize()
+        # return movie_list, count, and capitalized choice  # returning this data to the main program
 
 
 def choose_genre(valid_genres):
@@ -94,21 +95,32 @@ def print_movies(movies, count):  # prints the movie title and year with key val
     print(f"from {count} results!")  # prints total results searched
 
 
-def plot_movies_by_year(movies):
+def plot_movies_by_year(movies,choose):
     # Create a Plotly scatter plot
+    sorted_movies = sorted(movies, key=lambda x: x["name"])  # sort movies
+    reversed_color_scale = px.colors.sequential.Viridis[::-1 ]  # reverse the scatter plot colors because I find it going from light to dark looks better.
     fig = px.scatter(  # figure makes a scatter plot of the movies list of dicts.
-        movies,
+        sorted_movies,
+        y="name",
         x="year",
-        title="Top Movies by Year",
+        title=f"Popular {choose} Movies by Year",
         labels={
             "year": "Year",
             "name": "Movie Title",
         },  # label of year and movie title.  I'm organizing this information by year.
+        color="year",
         hover_data=["name"],  # display movie name when hovering over dot
+        color_continuous_scale=reversed_color_scale,
     )
-
     # Show the chart
     fig.show()
+
+
+def write_movies(movies):  # function to write out this list in a text file
+    f = open("movielist.txt", "w")
+    for movie in movies:
+        f.write(f"Movie Title: {movie['name']}, Year: {movie['year']}\n")
+    f.close()
 
 
 if __name__ == "__main__":
