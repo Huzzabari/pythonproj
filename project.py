@@ -1,9 +1,12 @@
 from PyMovieDb import IMDB
 import json
 import plotly.express as px
+import plotly.io as py
+import plotly.io as pio
 
 
 def main():  # main file
+    pio.renderers.default = "browser"
     movies, count, choose = return_movies()  # get data
     print_movies(movies, count)  # print this data as a list in the console
     write_movies(movies)  # writes out this list for users
@@ -97,9 +100,35 @@ def print_movies(movies, count):  # prints the movie title and year with key val
 
 def plot_movies_by_year(movies,choose):
     # Create a Plotly scatter plot
-    sorted_movies = sorted(movies, key=lambda x: x["name"])  # sort movies
+    sorted_movies = sorted(movies, key=lambda x: x["year"])  # sort movies
     reversed_color_scale = px.colors.sequential.Viridis[::-1 ]  # reverse the scatter plot colors because I find it going from light to dark looks better.
-    fig = px.scatter(  # figure makes a scatter plot of the movies list of dicts.
+    fig = px.bar(  # figure makes a scatter plot of the movies list of dicts.
+        sorted_movies,
+        y="year",
+        x="name",
+        title=f"Popular {choose} Movies by Year",
+        labels={
+            "year": "Year",
+            "name": "Movie Title",
+        },  # label of year and movie title.  I'm organizing this information by year.
+        color="year",
+        hover_data=["name"],  # display movie name when hovering over dot
+        color_continuous_scale=reversed_color_scale,
+    )
+    fig1 = px.area(  # figure makes a scatter plot of the movies list of dicts.
+        sorted_movies,
+        y="year",
+        x="name",
+        title=f"Popular {choose} Movies by Year",
+        labels={
+            "year": "Year",
+            "name": "Movie Title",
+        },  # label of year and movie title.  I'm organizing this information by year.
+        color="year",
+        hover_data=["name"],  # display movie name when hovering over dot
+        
+    )
+    fig2 = px.scatter(  # figure makes a scatter plot of the movies list of dicts.
         sorted_movies,
         y="name",
         x="year",
@@ -114,6 +143,9 @@ def plot_movies_by_year(movies,choose):
     )
     # Show the chart
     fig.show()
+    fig1.show()
+    fig2.show()
+    #py.write_image(fig, f'{choose}.png')
 
 
 def write_movies(movies):  # function to write out this list in a text file
